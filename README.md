@@ -1,42 +1,32 @@
-# VNtyper reference data releases
+# vntyper-data
 
-Immutable metadata and GitHub Release assets for [VNtyper](https://github.com/vntyper-org/VNtyper)
-MUC1 reference bundles. **No reference data is committed here** — no chromosome FASTAs, no
-BWA indexes, no generated motif files. Git holds the release specifications, the
-non-derivable seeds, and the workflow that builds a release.
+[![Latest release](https://img.shields.io/github/v/release/vntyper-org/vntyper-data)](https://github.com/vntyper-org/vntyper-data/releases/latest)
+[![License: MIT](https://img.shields.io/github/license/vntyper-org/vntyper-data)](LICENSE)
+[![VNtyper documentation](https://img.shields.io/badge/docs-VNtyper-blue)](https://vntyper-org.github.io/VNtyper/)
 
-## Why this repository exists
+Versioned, checksummed MUC1 reference bundles for
+[VNtyper](https://github.com/vntyper-org/VNtyper), published as GitHub Releases tagged
+`refs-vN`. Research use only.
 
-VNtyper used to assemble its references at Docker image build time: six chromosome-1
-genomes downloaded from UCSC, NCBI and Ensembl and BWA-indexed in-image. That was the
-single most expensive step of the build, it depended on four third-party hosts staying up
-and byte-stable, and nothing pinned the *content* of what was downloaded — two images built
-a year apart could contain different sequence under the same name.
+No reference data is committed to git: no chromosome FASTAs, BWA indexes or generated
+motif files. The repository holds the release specifications in [`releases/`](releases/),
+the hand-curated files that have no upstream in [`seeds/`](seeds/), and the workflow that
+builds a release. Each spec pins every upstream URL and its SHA-256, the SHA-256 of every
+seed, every derivation and the digest it must produce, the VNtyper builder commit, and the
+BWA and samtools versions. Upstream sources and their terms are listed in
+[ATTRIBUTION.md](ATTRIBUTION.md).
 
-Reference sets are now built once, verified, and published here as versioned release
-bundles. `vntyper install-references` and `Dockerfile.base` fetch them. See
-[vntyper-org/VNtyper#217](https://github.com/vntyper-org/VNtyper/issues/217).
+## Releases
 
-## Release lifecycle
+| Tag | Contents | Used by |
+|---|---|---|
+| `refs-v1` | chr1 FASTA + BWA index for UCSC hg19/hg38, NCBI GRCh37/GRCh38, Ensembl hg19/hg38; MUC1 common bundle | bundle-installing VNtyper before 2.0.21 |
+| `refs-v2` | `refs-v1` assembly bundles byte-for-byte; MUC1 bundle with corrected GRCh38 adVNTR model (needs adVNTR >= 2.0.4) | VNtyper 2.0.21 and later |
+| `refs-v3` | standard MUC1 length model for GRCh38, the same file as `seeds/grch38-standard-length-model-v1.json` | VNtyper installs the copy in `seeds/` |
 
-VNtyper software is released from
-[vntyper-org/VNtyper](https://github.com/vntyper-org/VNtyper). Reference data is released
-here with tags of the form `refs-vN`.
+Release notes and the reasons behind each tag are in the [release history](docs/releases.md).
 
-Each committed JSON file under `releases/` pins:
-
-- every upstream source URL, with its SHA-256 digest, and Ensembl pinned to an explicit
-  release rather than `current`;
-- the SHA-256 of every seed in `seeds/`;
-- every derivation, as the command that produces it and the SHA-256 it must produce;
-- the VNtyper commit the builder was taken from, and the BWA and samtools versions used.
-
-The release workflow invokes a full-SHA-pinned reusable workflow from the software
-repository. It creates a **draft** release only. Assets are verified before a maintainer
-publishes the draft, and published releases are immutable — a builder change means a new
-`refs-vN`, never a re-cut of an existing tag.
-
-## Install and verify
+## Install
 
 VNtyper resolves this repository by default:
 
@@ -44,65 +34,42 @@ VNtyper resolves this repository by default:
 vntyper install-references --output-dir reference --references hg38
 ```
 
-Each asset's SHA-256 is committed in VNtyper's own `install_references_config.json`, not
-taken from the `SHA256SUMS` published beside the assets — a checksum file hosted next to
-the files it describes cannot be its own root of trust. The published `SHA256SUMS` is for
-humans reviewing a draft:
-
-```bash
-gh release download refs-v1 --repo vntyper-org/vntyper-data
-sha256sum --check --ignore-missing SHA256SUMS
-```
-
-To build from upstream instead of fetching a bundle — the path this repository's own build
-workflow runs, so it stays exercised:
+To build from the upstream sources instead of fetching a bundle:
 
 ```bash
 vntyper install-references --output-dir reference --from-source
 ```
 
-## Publication policy
+## Verify a download
 
-Every release must contain, per assembly, a bundle carrying the chromosome FASTA, its BWA
-index and a `BUILD_INFO.json`; the common MUC1 bundle; a top-level `SHA256SUMS`;
-`release-manifest.json`; and `verification-report.json`. Publish only after the full
-artifact set and its remote checksums have been reviewed.
+The installer checks every asset against a SHA-256 committed in VNtyper's
+`install_references_config.json`, not against the `SHA256SUMS` published beside the
+assets: a checksum file hosted next to the files it describes cannot be its own root of
+trust. The published checksums are for people reviewing a release:
 
-## Status
+```bash
+gh release download refs-v2 --repo vntyper-org/vntyper-data --pattern SHA256SUMS --pattern '*-muc1.tar.gz'
+sha256sum --check --ignore-missing SHA256SUMS
+```
 
-**`refs-v2`** is the current release, consumed by
-[VNtyper v2.0.21](https://github.com/vntyper-org/VNtyper/releases/tag/v2.0.21) and later.
-It corrects the GRCh38 adVNTR model, which described 840 bp of a repeat array GRCh38
-carries at 3,525 bp — adVNTR derives its read-fetch window from the model's own content,
-so it saw 24% of the locus. Measured over 400 simulated samples, detection goes from
-132/200 carriers to 176/200. **Requires adVNTR >= 2.0.4.**
+Expected output: `vntyper-references-refs-v2-muc1.tar.gz: OK`. Drop the
+`*-muc1.tar.gz` pattern to fetch all seven assets (about 2 GB).
 
-Only the MUC1 common asset changed. The six per-assembly bundles are the `refs-v1`
-artifacts byte-for-byte, republished under the new tag keeping their original file names
-and digests, so their own `BUILD_INFO.json` and manifests stay truthful about when and
-from what they were built. `verification-report.json` records that check.
+## Versioning
 
-The models are now derived rather than shipped as an opaque blob:
-`seeds/derive_advntr_muc1_model.py` builds them from chr1 plus pinned array bounds, and
-reproduces the previous hg19 database content byte-for-byte — 9 differing bytes, all
-SQLite header, zero content bytes. See
-[vntyper-org/VNtyper#268](https://github.com/vntyper-org/VNtyper/issues/268) and #1.
+Published releases are immutable. A correction or a builder change gets a new `refs-vN`
+tag; an existing tag is never re-cut, so installations pinned to it keep working. How a
+release is specified, built and reviewed is described in
+[building a release](docs/building.md). This repository has no test suite; the build
+workflow verifies every digest a spec declares.
 
-`refs-v2` was cut published rather than as a draft, skipping the review step described
-above. That deviation and the verification available for post-hoc review are recorded in
-the release notes. `refs-v1` remains published and untouched, so installations pinned to
-it are unaffected.
+## License
 
-`refs-v1` is specified in `releases/refs-v1.json` and built by
-`.github/workflows/release-data.yml`, which dispatches VNtyper's reusable builder pinned at
-`699b81e` — the merge commit of
-[vntyper-org/VNtyper#239](https://github.com/vntyper-org/VNtyper/pull/239) and #240.
+The MIT [license](LICENSE) covers this repository's own scripts and metadata. It does not
+extend to the upstream sequence data, which stays under the terms listed in
+[ATTRIBUTION.md](ATTRIBUTION.md).
 
-The release is cut as a **draft**. A maintainer reviews `verification-report.json` and checks
-`SHA256SUMS` against the remote assets before publishing. Published releases are immutable:
-a correction is a new tag, never a re-cut of an existing one.
+## Citing
 
-**The trust anchor is VNtyper, not this repository.** Every source URL and digest in a spec
-here must match the values committed in VNtyper's `install_references_config.json`, and the
-build refuses to start if they disagree. To move an upstream, change VNtyper first in a
-reviewed commit, then match the spec to it.
+Cite VNtyper using its [citation file](https://github.com/vntyper-org/VNtyper/blob/main/CITATION.cff)
+and name the `refs-vN` tag you used. Cite adVNTR as given in [ATTRIBUTION.md](ATTRIBUTION.md).
