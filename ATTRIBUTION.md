@@ -1,7 +1,7 @@
 # Attribution
 
 This repository distributes derived chromosome-1 sequence and MUC1-scoped reference files
-for [VNtyper](https://github.com/hassansaei/VNtyper). Each release specification under
+for [VNtyper](https://github.com/vntyper-org/VNtyper). Each release specification under
 `releases/` records the exact upstream source URL and SHA-256 digest used for its build, so
 every published byte is traceable to the release it was derived from.
 

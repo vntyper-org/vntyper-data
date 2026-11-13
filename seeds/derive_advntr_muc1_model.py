@@ -3,7 +3,7 @@
 The model used to ship as an opaque binary seed (`seeds/vntr_db_advntr.zip`) that
 nobody could regenerate, and the hg38 copy was wrong: it carried hg19's `repeats` and
 `pattern` verbatim, describing 840 bp of an array that GRCh38 carries at 3,525 bp.
-See berntpopp/vntyper-data#1 and hassansaei/VNtyper#268.
+See vntyper-org/vntyper-data#1 and vntyper-org/VNtyper#268.
 
 Two things this script establishes:
 
