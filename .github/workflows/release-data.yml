@@ -1,6 +1,6 @@
 # Builds a VNtyper reference release from a committed spec in this repository.
 #
-# The builder is software and lives with the software, in hassansaei/VNtyper. This file
+# The builder is software and lives with the software, in vntyper-org/VNtyper. This file
 # only dispatches it, pinned at a full commit SHA so a bundle is always reproducible from
 # a known builder.
 #
@@ -26,7 +26,7 @@ jobs:
   build:
     permissions:
       contents: write
-    uses: hassansaei/VNtyper/.github/workflows/build-reference-bundles.yml@83059ee687dcfaa53e7186befd04a0938cfd2108
+    uses: vntyper-org/VNtyper/.github/workflows/build-reference-bundles.yml@83059ee687dcfaa53e7186befd04a0938cfd2108
     with:
       release_tag: ${{ inputs.release_tag }}
       release_spec_path: releases/${{ inputs.release_tag }}.json

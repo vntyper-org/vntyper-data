@@ -1,6 +1,6 @@
 # VNtyper reference data releases
 
-Immutable metadata and GitHub Release assets for [VNtyper](https://github.com/hassansaei/VNtyper)
+Immutable metadata and GitHub Release assets for [VNtyper](https://github.com/vntyper-org/VNtyper)
 MUC1 reference bundles. **No reference data is committed here** — no chromosome FASTAs, no
 BWA indexes, no generated motif files. Git holds the release specifications, the
 non-derivable seeds, and the workflow that builds a release.
@@ -15,12 +15,12 @@ a year apart could contain different sequence under the same name.
 
 Reference sets are now built once, verified, and published here as versioned release
 bundles. `vntyper install-references` and `Dockerfile.base` fetch them. See
-[hassansaei/VNtyper#217](https://github.com/hassansaei/VNtyper/issues/217).
+[vntyper-org/VNtyper#217](https://github.com/vntyper-org/VNtyper/issues/217).
 
 ## Release lifecycle
 
 VNtyper software is released from
-[hassansaei/VNtyper](https://github.com/hassansaei/VNtyper). Reference data is released
+[vntyper-org/VNtyper](https://github.com/vntyper-org/VNtyper). Reference data is released
 here with tags of the form `refs-vN`.
 
 Each committed JSON file under `releases/` pins:
@@ -50,7 +50,7 @@ the files it describes cannot be its own root of trust. The published `SHA256SUM
 humans reviewing a draft:
 
 ```bash
-gh release download refs-v1 --repo berntpopp/vntyper-data
+gh release download refs-v1 --repo vntyper-org/vntyper-data
 sha256sum --check --ignore-missing SHA256SUMS
 ```
 
@@ -71,7 +71,7 @@ artifact set and its remote checksums have been reviewed.
 ## Status
 
 **`refs-v2`** is the current release, consumed by
-[VNtyper v2.0.21](https://github.com/hassansaei/VNtyper/releases/tag/v2.0.21) and later.
+[VNtyper v2.0.21](https://github.com/vntyper-org/VNtyper/releases/tag/v2.0.21) and later.
 It corrects the GRCh38 adVNTR model, which described 840 bp of a repeat array GRCh38
 carries at 3,525 bp — adVNTR derives its read-fetch window from the model's own content,
 so it saw 24% of the locus. Measured over 400 simulated samples, detection goes from
@@ -86,7 +86,7 @@ The models are now derived rather than shipped as an opaque blob:
 `seeds/derive_advntr_muc1_model.py` builds them from chr1 plus pinned array bounds, and
 reproduces the previous hg19 database content byte-for-byte — 9 differing bytes, all
 SQLite header, zero content bytes. See
-[hassansaei/VNtyper#268](https://github.com/hassansaei/VNtyper/issues/268) and #1.
+[vntyper-org/VNtyper#268](https://github.com/vntyper-org/VNtyper/issues/268) and #1.
 
 `refs-v2` was cut published rather than as a draft, skipping the review step described
 above. That deviation and the verification available for post-hoc review are recorded in
@@ -96,7 +96,7 @@ it are unaffected.
 `refs-v1` is specified in `releases/refs-v1.json` and built by
 `.github/workflows/release-data.yml`, which dispatches VNtyper's reusable builder pinned at
 `699b81e` — the merge commit of
-[hassansaei/VNtyper#239](https://github.com/hassansaei/VNtyper/pull/239) and #240.
+[vntyper-org/VNtyper#239](https://github.com/vntyper-org/VNtyper/pull/239) and #240.
 
 The release is cut as a **draft**. A maintainer reviews `verification-report.json` and checks
 `SHA256SUMS` against the remote assets before publishing. Published releases are immutable:
